@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Job Tracker",
+  "version": "0.1.0",
+  "description": "Tracking of job applications on LinkedIn, Hellowork and Indeed",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}
