@@ -85,6 +85,24 @@ function renderJobsList(jobs){
     listElement.appendChild(fragment);
 }
 
+async function getActiveTab() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tab || null;
+}
+
+async function extractFromActiveTab(tabId) {
+    const results = await chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        files: [ 'scripts/extract-info.js' ]
+    });
+
+    if (results && results[0] && results[0].result) {
+        return results[0].result;
+    }
+
+    throw new Error("Impossible d'extraire les informations de la page.");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const saveBtn = document.getElementById("save-job-btn");
     const jobsList = document.getElementById("jobs-list");
@@ -93,20 +111,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderJobsList(initialJobs);
 
     saveBtn.addEventListener("click", async () => {
-        const fakeJob = {
-            id: crypto.randomUUID(),
-            title: `Dev Frontend #${Math.floor(Math.random() * 1000)}`,
-            company: 'Awesome Tech Inc.',
-            url: 'https://example.com/jobs/dev-frontend',
-            status: 'applied',
-            createdAt: new Date().toISOString()
-        };
+        try {
+            const activeTab = await getActiveTab();
+            const statusMsg = document.getElementById("status-message");
 
-        const updated = await saveJob(fakeJob);
-        renderJobsList(updated);
+            if (!activeTab || !activeTab.id || activeTab.url.startsWith('chrome://')) {
+                alert("Impossible d'extraire les données de cette page.");
+                return;
+            }
+
+            const extracted = await extractFromActiveTab(activeTab.id);
+
+            const newJob = {
+                id: crypto.randomUUID(),
+                title: extracted.title || 'Poste sans titre',
+                company: 'A détecter',
+                url: extracted.url,
+                status: 'applied',
+                createdAt: new Date().toISOString()
+            };
+
+            const updated = await saveJob(newJob);
+            renderJobsList(updated);
+
+            statusMsg.textContent = `Offre enregistrée : ${newJob.title}`;
+            statusMsg.classList.remove('hidden');
+            setTimeout(() => statusMsg.classList.add('hidden'), 3000);
+        } catch (error) {
+            console.error('Erreur lors de l\'extraction : ', error);
+            alert("Erreur lors de l'extraction : " + error.message);
+        }
     });
 
-    jobsList.addEventListener('click', async () => {
+    jobsList.addEventListener('click', async (event) => {
         const deleteBtn = event.target.closest('.delete-btn');
         if (!deleteBtn) return;
 
