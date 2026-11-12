@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width-device-width initial-scale=1.0">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
     <title>Job Tracker</title>
     <link rel="stylesheet" href="popup.css">
 </head>
@@ -10,14 +10,21 @@
   <div class="container">
     <header>
       <h1>Job Tracker</h1>
+        <span id="job-count" class="badge">0</span>
     </header>
 
     <main>
       <button id="save-job-btn" class="btn btn-primary" type="button">
-        Enregistrer cette offre
+        + Ajouter une offre (test)
       </button>
 
       <div id="status-message" class="status-message hidden" role="status"></div>
+      <section class="jobs-section">
+          <h2>Mes candidatures</h2>
+          <ul id="jobs-list" class="jobs-list">
+          </ul>
+          <p id="empty-state" class="empty-state">Aucune offre de sauvegardée pour l'instant!</p>
+      </section>
     </main>
   </div>
 
