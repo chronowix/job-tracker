@@ -5,10 +5,13 @@
     --card-bg: #ffffff;
     --text: #0f172a;
     --border: #e2e8f0;
+    *, *::before, *::after{
+        box-sizing: border-box;
+    }
 }
 
 body {
-    width: 360px;
+    width: 380px;
     min-height: 180px;
     margin: 0;
     padding: 16px;
@@ -164,6 +167,67 @@ body {
     font-size: 0.85rem;
     padding: 20px 0;
     margin: 0;
+}
+
+.job-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card-bg);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.form-row {
+    display: flex;
+    gap: 8px;
+}
+
+.flex-1 {
+    flex: 1;
+    min-width: 0;
+}
+.flex-2 {
+    flex: 2;
+    min-width: 0;
+}
+
+label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    outline: none;
+    font-family: inherit;
+}
+
+input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+.platform-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background-color: #f1f5f9;
+    color: #475569;
+    width: fit-content;
 }
 
 h1 {

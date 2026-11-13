@@ -8,23 +8,44 @@
 </head>
 <body>
   <div class="container">
-    <header>
+    <header class="header">
       <h1>Job Tracker</h1>
         <span id="job-count" class="badge">0</span>
     </header>
 
     <main>
-      <button id="save-job-btn" class="btn btn-primary" type="button">
-        + Ajouter une offre
-      </button>
+        <form id="job-form" class="job-form">
+            <div class="form-group">
+                <label for="job-title">Intitulé du poste *</label>
+                <input type="text" id="job-title" required placeholder="Ex: Développeur Web">
+            </div>
 
-      <div id="status-message" class="status-message hidden" role="status"></div>
-      <section class="jobs-section">
-          <h2>Mes candidatures</h2>
-          <ul id="jobs-list" class="jobs-list">
-          </ul>
-          <p id="empty-state" class="empty-state">Aucune offre de sauvegardée pour l'instant!</p>
-      </section>
+            <div class="form-row">
+                <div class="form-group flex-2">
+                    <label for="job-company">Entreprise *</label>
+                    <input type="text" id="job-company" required placeholder="Ex: Acme Inc.">
+                </div>
+                <div class="form-group flex-1">
+                    <label for="job-platform">Source</label>
+                    <input type="text" id="job-platform" placeholder="LinkedIn, Indeed...">
+                </div>
+            </div>
+
+            <input type="hidden" id="job-url">
+
+            <button type="submit" id="save-job-btn" class="btn btn-primary">
+                Enregistrer la candidature
+            </button>
+        </form>
+
+        <div id="status-message" class="status-message hidden" role="status"></div>
+
+        <!-- Liste des candidatures -->
+        <section class="jobs-section">
+            <h2>Mes candidatures</h2>
+            <ul id="jobs-list" class="jobs-list"></ul>
+            <p id="empty-state" class="empty-state">Aucune offre enregistrée.</p>
+        </section>
     </main>
   </div>
 
