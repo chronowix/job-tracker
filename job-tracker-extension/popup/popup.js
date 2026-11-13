@@ -44,9 +44,14 @@ function createJobCard(job){
     statusSpan.className = 'job-status';
     statusSpan.textContent = job.status || 'applied';
 
+    const platformSpan = document.createElement('span');
+    platformSpan.className = 'platform-tag';
+    platformSpan.textContent = job.platform || 'Autre';
+
     infoDiv.appendChild(titleLink);
     infoDiv.appendChild(companySpan);
     infoDiv.appendChild(statusSpan);
+    infoDiv.appendChild(platformSpan);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-btn';
@@ -104,43 +109,52 @@ async function extractFromActiveTab(tabId) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const saveBtn = document.getElementById("save-job-btn");
+    const jobForm = document.getElementById("job-form");
+    const titleInput = document.getElementById("job-title");
+    const companyInput = document.getElementById("job-company");
+    const platformInput = document.getElementById("job-platform");
+    const urlInput = document.getElementById("job-url");
     const jobsList = document.getElementById("jobs-list");
+    const statusMsg = document.getElementById("status-message");
 
     const initialJobs = await getStoredJobs();
     renderJobsList(initialJobs);
 
-    saveBtn.addEventListener("click", async () => {
-        try {
-            const activeTab = await getActiveTab();
-            const statusMsg = document.getElementById("status-message");
-
-            if (!activeTab || !activeTab.id || activeTab.url.startsWith('chrome://')) {
-                alert("Impossible d'extraire les données de cette page.");
-                return;
-            }
-
+    try {
+        const activeTab = await getActiveTab();
+        if (activeTab && activeTab.id && !activeTab.url.startsWith('chrome://')) {
             const extracted = await extractFromActiveTab(activeTab.id);
-
-            const newJob = {
-                id: crypto.randomUUID(),
-                title: extracted.title || 'Poste sans titre',
-                company: 'A détecter',
-                url: extracted.url,
-                status: 'applied',
-                createdAt: new Date().toISOString()
-            };
-
-            const updated = await saveJob(newJob);
-            renderJobsList(updated);
-
-            statusMsg.textContent = `Offre enregistrée : ${newJob.title}`;
-            statusMsg.classList.remove('hidden');
-            setTimeout(() => statusMsg.classList.add('hidden'), 3000);
-        } catch (error) {
-            console.error('Erreur lors de l\'extraction : ', error);
-            alert("Erreur lors de l'extraction : " + error.message);
+            if (extracted) {
+                titleInput.value = extracted.title || '';
+                companyInput.value = extracted.company || '';
+                platformInput.value = extracted.platform || '';
+                urlInput.value = extracted.url || activeTab.url;
+            }
         }
+    } catch (e) {
+        // Si l'extraction échoue (ex: page système ou permission), le formulaire reste vide et modifiable manuellement
+        console.warn("Extraction automatique impossible, saisie manuelle active.", e);
+    }
+
+    jobForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const newJob = {
+            id: crypto.randomUUID(),
+            title: titleInput.value.trim(),
+            company: companyInput.value.trim(),
+            platform: platformInput.value.trim() || 'Autre',
+            url: urlInput.value || '',
+            status: 'applied',
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = await saveJob(newJob);
+        renderJobsList(updated);
+
+        statusMsg.textContent = `Offre enregistrée : "${newJob.title}"`;
+        statusMsg.classList.remove('hidden');
+        setTimeout(() => statusMsg.classList.add('hidden'), 3000);
     });
 
     jobsList.addEventListener('click', async (event) => {
@@ -149,7 +163,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const card = deleteBtn.closest('.job-card');
         const jobId = card.dataset.id;
-
         if (jobId) {
             const updated = await deleteJob(jobId);
             renderJobsList(updated);
